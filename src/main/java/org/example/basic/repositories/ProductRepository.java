@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {
-    @Query("""
+    @Query(value = """
              SELECT p FROM Product p
              WHERE (CAST(:name AS STRING ) IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', CAST(:name AS STRING), '%')))
                AND (CAST(:categoryId AS INTEGER ) IS NULL OR p.category.id = :categoryId)
@@ -19,4 +19,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             """)
     Page<Product> searchByHql(@Param("name") String name, @Param("categoryId") Integer categoryId,
                               @Param("minPrice") Double minPrice, @Param("maxPrice") Double maxPrice, Pageable pageable);
+
+    @Query(value = "select p from Product p join fetch p.category")
+    Page<Product> getProductsWithCategory(Pageable pageable);
 }

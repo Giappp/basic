@@ -2,6 +2,7 @@ package org.example.basic.services;
 
 import lombok.RequiredArgsConstructor;
 import org.example.basic.dto.PageResponse;
+import org.example.basic.dto.ProductCriteria;
 import org.example.basic.dto.ProductDTO;
 import org.example.basic.entities.Category;
 import org.example.basic.entities.Product;
@@ -15,8 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -24,12 +23,8 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
-    public List<ProductDTO> getAll() {
-        return productRepository.findAll()
-                .stream()
-                .map(ProductMapper.INSTANCE::toDto)
-                .toList();
-
+    public PageResponse<ProductDTO> getAll(Pageable pageable) {
+        return getProductDTOPageResponse(productRepository.getProductsWithCategory(pageable));
     }
 
     public ProductDTO getById(Integer id) {
@@ -69,12 +64,18 @@ public class ProductService {
         return ProductMapper.INSTANCE.toDto(product);
     }
 
-    public PageResponse<ProductDTO> search(String name, Integer categoryId, Double minPrice, Double maxPrice, Pageable pageable) {
-        Page<Product> productPage = productRepository.searchByHql(name, categoryId, minPrice, maxPrice, pageable);
+    public PageResponse<ProductDTO> search(ProductCriteria criteria, Pageable pageable) {
+        Page<Product> productPage = productRepository.searchByHql(criteria.name(), criteria.categoryId(), criteria.minPrice(), criteria.maxPrice(), pageable);
+
+        return getProductDTOPageResponse(productPage);
+    }
+
+    private PageResponse<ProductDTO> getProductDTOPageResponse(Page<Product> productPage) {
         var products = productPage.getContent()
                 .stream()
                 .map(ProductMapper.INSTANCE::toDto)
                 .toList();
+
         return PageResponse.<ProductDTO>builder()
                 .data(products)
                 .pageSize(productPage.getSize())

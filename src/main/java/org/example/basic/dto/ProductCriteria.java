@@ -1,19 +1,15 @@
 package org.example.basic.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class ProductCriteria {
-    private String name;
-    private Integer categoryId;
-    private Double minPrice;
-    private Double maxPrice;
+public record ProductCriteria(
+        @Schema(description = "Product Name filter option")
+        String name,
+        @Schema(description = "Category filter option by Id")
+        Integer categoryId,
+        @Schema(description = "Minimum price filter option")
+        Double minPrice,
+        @Schema(description = "Maximum price filter option")
+        Double maxPrice
+) {
 }
