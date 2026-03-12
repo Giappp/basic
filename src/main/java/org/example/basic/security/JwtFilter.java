@@ -1,37 +1,52 @@
 package org.example.basic.security;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import org.example.basic.services.UserService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 
 @Component
-@RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
 
-    private final UserDetailsService userDetailsService;
+    private final UserService userService;
+
+    private final HandlerExceptionResolver exceptionResolver;
+
+    public JwtFilter(JwtProvider jwtProvider, UserService userService, @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
+        this.jwtProvider = jwtProvider;
+        this.userService = userService;
+        this.exceptionResolver = exceptionResolver;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = parseToken(request);
-        if (isValidToken(token)) authenticateUser(token);
-        filterChain.doFilter(request, response);
+        try {
+            if (isValidToken(token)) authenticateUser(token);
+
+            filterChain.doFilter(request, response);
+        } catch (JwtException ex) {
+            SecurityContextHolder.clearContext();
+
+            exceptionResolver.resolveException(request, response, null, ex);
+        }
     }
 
     private void authenticateUser(String token) {
         String userEmail = jwtProvider.getUserEmailFromToken(token);
-        UserDetails securityUser = userDetailsService.loadUserByUsername(userEmail);
+        SecurityUser securityUser = userService.loadUserByUsername(userEmail);
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(securityUser, "", securityUser.getAuthorities());
 

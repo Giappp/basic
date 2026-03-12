@@ -50,4 +50,13 @@ public class AuthController {
                 .success(true)
                 .build());
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestBody LogoutRequest logoutRequest) {
+        authService.logout(logoutRequest.refreshToken());
+        return ResponseEntity.ok(ApiResponse.builder()
+                .messages("Logout success")
+                .success(true)
+                .build());
+    }
 }

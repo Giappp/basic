@@ -10,7 +10,7 @@ public enum ErrorCode {
     USERNAME_TAKEN("Username already taken", "2002"),
     PASSWORD_MISMATCH("Password and confirm password does not match", "2003"),
     TOKEN_EXPIRED("Token expired", "2004"),
-    INVALID_TOKEN("Invalid Token", "2005");
+    INVALID_TOKEN("Invalid Token or Already logout", "2005");
     public final String message;
     public final String code;
 

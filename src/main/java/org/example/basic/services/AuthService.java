@@ -12,6 +12,7 @@ import org.example.basic.repositories.UserRepository;
 import org.example.basic.security.JwtProvider;
 import org.example.basic.security.SecurityUser;
 import org.example.basic.utils.DeviceInfoUtil;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,16 +29,19 @@ public class AuthService {
     public TokenResponse processSignIn(SignInRequest payload, HttpServletRequest request) {
         var securityUser = userService.loadUserByUsername(payload.email());
         DeviceInfo deviceInfo = DeviceInfoUtil.getDeviceInfo(request);
-        log.info("Sign in request attempt for account ${} at address: ${}", securityUser.getUsername(), request.getRemoteAddr());
+        log.info("Sign in request attempt for account ${} with Ip: ${}", securityUser.getUsername(), request.getRemoteAddr());
         if (isMatchesPassword(payload, securityUser)) {
+            log.info("User {} successfully logged in with IP {}", securityUser.user().getId(), deviceInfo.ipv4());
             return buildToken(securityUser.user(), deviceInfo);
         }
+        log.warn("Logged in attempted fail for user {} with IP {}", securityUser.user().getId(), deviceInfo.ipv4());
         throw new AppException(ErrorCode.INVALID_CREDENTIALS);
     }
 
     public void processSignUp(SignUpRequest request) {
         validate(request);
         userRepository.save(buildUserEntity(request));
+        log.info("Created user with email {} successfully", request.email());
     }
 
     private User buildUserEntity(SignUpRequest request) {
@@ -53,7 +57,13 @@ public class AuthService {
         String refreshToken = payload.refreshToken();
         DeviceInfo deviceInfo = DeviceInfoUtil.getDeviceInfo(request);
         User user = refreshTokenService.verify(refreshToken);
+        log.info("Rotate refresh token success for user {} at ip {}", user.getId(), deviceInfo.ipv4());
         return rotateToken(refreshToken, user, deviceInfo);
+    }
+
+    public void logout(String refreshToken) {
+        refreshTokenService.invalidate(refreshToken);
+        SecurityContextHolder.clearContext();
     }
 
     private TokenResponse rotateToken(String refreshToken, User user, DeviceInfo deviceInfo) {

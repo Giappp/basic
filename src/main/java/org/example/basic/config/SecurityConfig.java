@@ -1,7 +1,6 @@
 package org.example.basic.config;
 
 import lombok.AllArgsConstructor;
-import org.example.basic.security.JwtAuthenticationEntryPoint;
 import org.example.basic.security.JwtFilter;
 import org.example.basic.security.SecurityConstants;
 import org.springframework.context.annotation.Bean;
@@ -38,9 +37,7 @@ public class SecurityConfig {
                                 .anyRequest()
                                 .authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .authenticationProvider(authenticationProvider())
-                .exceptionHandling((exceptionHandling) ->
-                        exceptionHandling.authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
+                .authenticationProvider(authenticationProvider());
 
         return http.build();
     }

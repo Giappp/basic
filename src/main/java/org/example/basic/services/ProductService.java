@@ -1,6 +1,7 @@
 package org.example.basic.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.basic.dto.PageResponse;
 import org.example.basic.dto.ProductCriteria;
 import org.example.basic.dto.ProductDTO;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
@@ -53,20 +55,22 @@ public class ProductService {
 
         product.setName(dto.name());
         product.setPrice(dto.price());
-
-        return ProductMapper.INSTANCE.toDto(productRepository.save(product));
+        Product savedProduct = productRepository.save(product);
+        log.info("Update product {} successfully", productId);
+        return ProductMapper.INSTANCE.toDto(savedProduct);
     }
 
     @Transactional
     public ProductDTO delete(Integer productId) {
         Product product = getProductOrThrow(productId);
         productRepository.delete(product);
+        log.info("Delete product {} successfully", productId);
         return ProductMapper.INSTANCE.toDto(product);
     }
 
     public PageResponse<ProductDTO> search(ProductCriteria criteria, Pageable pageable) {
         Page<Product> productPage = productRepository.searchByHql(criteria.name(), criteria.categoryId(), criteria.minPrice(), criteria.maxPrice(), pageable);
-
+        log.info("Retrieve product with criteria {}", criteria);
         return getProductDTOPageResponse(productPage);
     }
 
@@ -75,7 +79,7 @@ public class ProductService {
                 .stream()
                 .map(ProductMapper.INSTANCE::toDto)
                 .toList();
-
+        log.info("Retrieve page {} out of {} pages", productPage.getNumber(), productPage.getTotalPages());
         return PageResponse.<ProductDTO>builder()
                 .data(products)
                 .pageSize(productPage.getSize())
