@@ -8,7 +8,9 @@ public enum ErrorCode {
     INVALID_CREDENTIALS("Wrong username or password", "2000"),
     EMAIL_ALREADY_INUSE("Email already used", "2001"),
     USERNAME_TAKEN("Username already taken", "2002"),
-    PASSWORD_MISMATCH("Password and confirm password does not match", "2003");
+    PASSWORD_MISMATCH("Password and confirm password does not match", "2003"),
+    TOKEN_EXPIRED("Token expired", "2004"),
+    INVALID_TOKEN("Invalid Token", "2005");
     public final String message;
     public final String code;
 

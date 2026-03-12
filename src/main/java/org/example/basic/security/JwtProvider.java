@@ -4,11 +4,13 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.example.basic.entities.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.security.Key;
+import java.time.Instant;
 import java.util.Date;
 
 @Component
@@ -17,8 +19,6 @@ public class JwtProvider {
     private String jwtSecret;
     @Value(value = "${jwt.accessTokenExpirationMs}")
     private long accessTokenExpirationMs;
-    @Value(value = "${jwt.refreshTokenExpirationMs}")
-    private long refreshTokenExpirationMs;
 
     private SecretKey secretKey;
 
@@ -29,11 +29,11 @@ public class JwtProvider {
         return secretKey;
     }
 
-    public String generateAccessToken(SecurityUser user) {
+    public String generateAccessToken(User user) {
         return Jwts.builder()
-                .subject(user.getUsername())
+                .subject(user.getEmail())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + accessTokenExpirationMs))
+                .expiration(Date.from(Instant.now().plusMillis(accessTokenExpirationMs)))
                 .signWith(key())
                 .compact();
     }
@@ -57,14 +57,5 @@ public class JwtProvider {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-    }
-
-    public String generateRefreshToken(SecurityUser user) {
-        return Jwts.builder()
-                .subject(user.getUsername())
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + refreshTokenExpirationMs))
-                .signWith(key())
-                .compact();
     }
 }

@@ -1,9 +1,9 @@
 package org.example.basic.services;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.example.basic.dto.SignInRequest;
-import org.example.basic.dto.SignUpRequest;
-import org.example.basic.dto.TokenResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.example.basic.dto.*;
 import org.example.basic.entities.Role;
 import org.example.basic.entities.User;
 import org.example.basic.errors.ErrorCode;
@@ -11,23 +11,26 @@ import org.example.basic.exception.AppException;
 import org.example.basic.repositories.UserRepository;
 import org.example.basic.security.JwtProvider;
 import org.example.basic.security.SecurityUser;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.example.basic.utils.DeviceInfoUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class AuthService {
-    private final UserDetailsService userService;
+    private final UserService userService;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final RefreshTokenService refreshTokenService;
 
-    public TokenResponse processSignIn(SignInRequest request) {
-        var user = userService.loadUserByUsername(request.email());
-        if (isMatchesPassword(request, user)) {
-            return buildToken((SecurityUser) user);
+    public TokenResponse processSignIn(SignInRequest payload, HttpServletRequest request) {
+        var securityUser = userService.loadUserByUsername(payload.email());
+        DeviceInfo deviceInfo = DeviceInfoUtil.getDeviceInfo(request);
+        log.info("Sign in request attempt for account ${} at address: ${}", securityUser.getUsername(), request.getRemoteAddr());
+        if (isMatchesPassword(payload, securityUser)) {
+            return buildToken(securityUser.user(), deviceInfo);
         }
         throw new AppException(ErrorCode.INVALID_CREDENTIALS);
     }
@@ -46,14 +49,28 @@ public class AuthService {
         return user;
     }
 
-    private TokenResponse buildToken(SecurityUser user) {
+    public TokenResponse processRefresh(RefreshTokenRequest payload, HttpServletRequest request) {
+        String refreshToken = payload.refreshToken();
+        DeviceInfo deviceInfo = DeviceInfoUtil.getDeviceInfo(request);
+        User user = refreshTokenService.verify(refreshToken);
+        return rotateToken(refreshToken, user, deviceInfo);
+    }
+
+    private TokenResponse rotateToken(String refreshToken, User user, DeviceInfo deviceInfo) {
         return TokenResponse.builder()
                 .accessToken(jwtProvider.generateAccessToken(user))
-                .refreshToken(jwtProvider.generateRefreshToken(user))
+                .refreshToken(refreshTokenService.rotate(refreshToken, deviceInfo))
                 .build();
     }
 
-    private boolean isMatchesPassword(SignInRequest request, UserDetails user) {
+    private TokenResponse buildToken(User user, DeviceInfo deviceInfo) {
+        return TokenResponse.builder()
+                .accessToken(jwtProvider.generateAccessToken(user))
+                .refreshToken(refreshTokenService.createRefreshToken(user.getId(), deviceInfo))
+                .build();
+    }
+
+    private boolean isMatchesPassword(SignInRequest request, SecurityUser user) {
         return passwordEncoder.matches(request.password(), user.getPassword());
     }
 

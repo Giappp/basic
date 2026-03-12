@@ -3,12 +3,9 @@ package org.example.basic.rest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.basic.dto.ApiResponse;
-import org.example.basic.dto.SignInRequest;
-import org.example.basic.dto.SignUpRequest;
-import org.example.basic.dto.TokenResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.example.basic.dto.*;
 import org.example.basic.services.AuthService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,16 +17,17 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signin")
-    public ResponseEntity<?> signIn(@RequestBody @Valid SignInRequest request) {
-        var token = authService.processSignIn(request);
+    public ResponseEntity<?> signIn(@RequestBody @Valid SignInRequest payload, HttpServletRequest request) {
+        var token = authService.processSignIn(payload, request);
         return ResponseEntity.ok(ApiResponse
                 .<TokenResponse>builder()
                 .data(token)
-                .status(HttpStatus.OK)
+                .success(true)
                 .build());
     }
 
@@ -37,6 +35,19 @@ public class AuthController {
     public ResponseEntity<?> signUp(@RequestBody @Valid SignUpRequest payload, HttpServletRequest request) {
         authService.processSignUp(payload);
         return ResponseEntity.created(URI.create(request.getRequestURI()))
-                .body("Sign Up Success");
+                .body(ApiResponse
+                        .builder()
+                        .messages("Sign Up Success")
+                        .success(true)
+                        .build());
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody @Valid RefreshTokenRequest payload, HttpServletRequest request) {
+        var result = authService.processRefresh(payload, request);
+        return ResponseEntity.ok(ApiResponse.builder()
+                .data(result)
+                .success(true)
+                .build());
     }
 }

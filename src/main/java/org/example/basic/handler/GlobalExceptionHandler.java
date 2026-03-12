@@ -3,7 +3,6 @@ package org.example.basic.handler;
 import org.example.basic.dto.ApiResponse;
 import org.example.basic.errors.Messages;
 import org.example.basic.exception.AppException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -20,7 +19,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(ApiResponse.builder()
                 .messages(appException.getMessage())
                 .code(appException.getCode())
-                .status(HttpStatus.BAD_REQUEST)
+                .success(false)
                 .build());
     }
 
@@ -33,7 +32,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest()
                 .body(ApiResponse.builder()
                         .messages(errors)
-                        .status(HttpStatus.BAD_REQUEST)
+                        .success(false)
                         .build());
     }
 
@@ -42,8 +41,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest()
                 .body(ApiResponse.builder()
                         .messages(Messages.INVALID_BODY)
-                        .status(HttpStatus.BAD_REQUEST)
+                        .success(false)
                         .build());
     }
-    
+
 }
