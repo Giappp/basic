@@ -6,6 +6,7 @@ import org.example.basic.entities.Category;
 import org.example.basic.errors.ErrorCode;
 import org.example.basic.exception.AppException;
 import org.example.basic.repositories.CategoryRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,24 +16,36 @@ import java.util.List;
 public class CategoryService {
     private final CategoryRepository categoryRepository;
 
-    public List<CategoryDto> getListCategories() {
-        return categoryRepository.findAll()
+    public List<CategoryDto> getListCategories(Pageable pageable) {
+        return categoryRepository.findAll(pageable)
                 .stream()
                 .map(this::toDto)
                 .toList();
     }
 
     public void create(CategoryDto categoryDto) {
-        if (categoryRepository.existsByName(categoryDto.name())) {
-            throw new AppException(ErrorCode.CATEGORY_ALREADY_EXIST);
-        }
+        validate(categoryDto);
         categoryRepository.save(toEntity(categoryDto));
     }
 
     public void delete(Integer id) {
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+        Category category = getCategory(id);
         categoryRepository.delete(category);
+    }
+
+    public void update(Integer categoryId, CategoryDto categoryDto) {
+        validate(categoryDto);
+
+        Category category = getCategory(categoryId);
+        category.setName(categoryDto.name());
+
+        categoryRepository.save(category);
+    }
+
+    private void validate(CategoryDto categoryDto) {
+        if (categoryRepository.existsByName(categoryDto.name())) {
+            throw new AppException(ErrorCode.CATEGORY_ALREADY_EXIST);
+        }
     }
 
     private CategoryDto toDto(Category category) {
@@ -44,5 +57,10 @@ public class CategoryService {
         category.setId(dto.id());
         category.setName(dto.name());
         return category;
+    }
+
+    private Category getCategory(Integer id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
     }
 }

@@ -1,6 +1,6 @@
 package org.example.basic;
 
-import org.example.basic.rest.HelloWorldController;
+import org.example.basic.controller.HelloWorldController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,8 +20,8 @@ class BasicApplicationTests {
     }
 
     @Test
-    void testApi(){
+    void testApi() {
         HelloWorldController helloWorldController = new HelloWorldController();
-        assertEquals("Hello World!",helloWorldController.helloMethod(),"Should return Hello World!");
+        assertEquals("Hello World!", helloWorldController.helloMethod(), "Should return Hello World!");
     }
 }
