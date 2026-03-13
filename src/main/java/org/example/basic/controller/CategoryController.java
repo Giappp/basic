@@ -48,8 +48,8 @@ public class CategoryController {
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/")
-    public ResponseEntity<?> create(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Category Information to create", required = true)
-                                    @RequestBody @Valid CategoryDto dto) {
+    public ResponseEntity<?> createCategory(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Category Information to create", required = true)
+                                            @RequestBody @Valid CategoryDto dto) {
         categoryService.create(dto);
         return ResponseEntity.ok(org.example.basic.dto.ApiResponse.builder()
                 .messages("Add new Category Success")
@@ -59,7 +59,7 @@ public class CategoryController {
 
     @PutMapping("/{categoryId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> update(Integer categoryId, CategoryDto categoryDto) {
+    public ResponseEntity<?> updateCategory(Integer categoryId, CategoryDto categoryDto) {
         categoryService.update(categoryId, categoryDto);
         return ResponseEntity.ok(org.example.basic.dto.ApiResponse.builder()
                 .messages("Update Category Success")
@@ -69,7 +69,7 @@ public class CategoryController {
 
     @DeleteMapping("/{categoryId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> update(Integer categoryId) {
+    public ResponseEntity<?> deleteCategory(Integer categoryId) {
         categoryService.delete(categoryId);
         return ResponseEntity.ok(org.example.basic.dto.ApiResponse.builder()
                 .messages("Delete Category Success")

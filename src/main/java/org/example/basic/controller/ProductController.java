@@ -31,8 +31,8 @@ public class ProductController {
             @ApiResponse(responseCode = "500", description = "Server Error")
     })
     @GetMapping("/")
-    public ResponseEntity<?> get(@Parameter(description = "A Pageable Object")
-                                 @ParameterObject @PageableDefault() Pageable pageable) {
+    public ResponseEntity<?> getAll(@Parameter(description = "A Pageable Object")
+                                    @ParameterObject @PageableDefault() Pageable pageable) {
         var productDtoList = productService.getAll(pageable);
         return ResponseEntity.ok(productDtoList);
     }
@@ -46,8 +46,8 @@ public class ProductController {
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/")
-    public ResponseEntity<?> create(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Product Information to create", required = true)
-                                    @RequestBody @Valid ProductDTO dto) {
+    public ResponseEntity<?> createProduct(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Product Information to create", required = true)
+                                           @RequestBody @Valid ProductDTO dto) {
         var result = productService.create(dto);
         return ResponseEntity.ok(result);
     }
@@ -61,7 +61,7 @@ public class ProductController {
             @ApiResponse(responseCode = "404", description = "Product not found")
     })
     @GetMapping("/{productId}")
-    public ResponseEntity<?> getById(@PathVariable Integer productId) {
+    public ResponseEntity<?> getProductById(@PathVariable Integer productId) {
         var product = productService.getById(productId);
         return ResponseEntity.ok(product);
     }
@@ -75,7 +75,7 @@ public class ProductController {
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{productId}")
-    public ResponseEntity<?> update(@PathVariable Integer productId, @RequestBody @Valid ProductDTO dto) {
+    public ResponseEntity<?> updateProduct(@PathVariable Integer productId, @RequestBody @Valid ProductDTO dto) {
         var product = productService.update(productId, dto);
         return ResponseEntity.ok(product);
     }
@@ -89,7 +89,7 @@ public class ProductController {
     })
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{productId}")
-    public ResponseEntity<?> delete(@PathVariable Integer productId) {
+    public ResponseEntity<?> deleteProduct(@PathVariable Integer productId) {
         var result = productService.delete(productId);
         return ResponseEntity.ok(result);
     }
@@ -110,8 +110,8 @@ public class ProductController {
             @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
     @GetMapping("/search")
-    public ResponseEntity<?> getProducts(ProductCriteria criteria,
-                                         @ParameterObject @PageableDefault() Pageable pageable) {
+    public ResponseEntity<?> searchProducts(ProductCriteria criteria,
+                                            @ParameterObject @PageableDefault() Pageable pageable) {
         return ResponseEntity.ok(productService.search(criteria, pageable));
     }
 }
