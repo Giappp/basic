@@ -40,8 +40,9 @@ public class ProductService {
 
         Product product = ProductMapper.INSTANCE.toEntity(dto);
         product.setCategory(category);
-
-        return ProductMapper.INSTANCE.toDto(productRepository.save(product));
+        var saved = productRepository.save(product);
+        log.info("Saved product {} successfully", saved.getId());
+        return ProductMapper.INSTANCE.toDto(saved);
     }
 
     @Transactional
