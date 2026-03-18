@@ -2,6 +2,7 @@ package org.example.basic.config;
 
 import lombok.AllArgsConstructor;
 import org.example.basic.security.JwtFilter;
+import org.example.basic.security.Oauth2SuccessHandler;
 import org.example.basic.security.SecurityConstants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final JwtFilter jwtFilter;
+    private final Oauth2SuccessHandler oauth2SuccessHandler;
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -36,6 +38,8 @@ public class SecurityConfig {
                         auth.requestMatchers(SecurityConstants.BYPASS_ENDPOINTS).permitAll()
                                 .anyRequest()
                                 .authenticated())
+                .oauth2Login(oauth ->
+                        oauth.successHandler(oauth2SuccessHandler))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authenticationProvider(authenticationProvider());
 

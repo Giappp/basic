@@ -31,16 +31,16 @@ public class RefreshTokenService {
         this.userRepository = userRepository;
     }
 
-    public String createRefreshToken(Long userId, DeviceInfo deviceInfo) {
+    public String createRefreshToken(User user, DeviceInfo deviceInfo) {
         RefreshToken refreshToken = new RefreshToken();
-        refreshToken.setUser(userRepository.findById(userId).get());
+        refreshToken.setUser(user);
         refreshToken.setExpiryDate(LocalDateTime.now().plusSeconds(refreshTokenExpirationSecond));
         refreshToken.setToken(UUID.randomUUID());
         refreshToken.setIpv4Address(deviceInfo.ipv4());
         refreshToken.setDeviceInfo(deviceInfo.device());
         refreshTokenRepository.save(refreshToken);
 
-        log.info("Create new session for user {} at ip {}", userId, deviceInfo.ipv4());
+        log.info("Create new session for user {} at ip {}", user.getId(), deviceInfo.ipv4());
         return refreshToken.getToken().toString();
     }
 
@@ -54,7 +54,7 @@ public class RefreshTokenService {
         User user = refreshToken.getUser();
         refreshTokenRepository.delete(refreshToken);
         log.info("Delete and create new refresh token for user {} at ip {}", user.getId(), deviceInfo.ipv4());
-        return createRefreshToken(user.getId(), deviceInfo);
+        return createRefreshToken(user, deviceInfo);
     }
 
     public void invalidate(String token) {

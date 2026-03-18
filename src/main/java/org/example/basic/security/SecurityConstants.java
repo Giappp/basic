@@ -2,15 +2,9 @@ package org.example.basic.security;
 
 public class SecurityConstants {
     public static final String[] BYPASS_ENDPOINTS = {
-            "/api/healthcheck/health",
-            "/api/v1/auth/signin",
-            "/api/v1/auth/signup",
-            "/api/v1/auth/refresh",
-            "/api/v1/auth/verify-email",
-            "/api/v1/auth/reset-password",
-            "/api/v1/auth/change-password",
-            "/api/v1/auth/forgot-password",
-
+            "/api/healthcheck/**",
+            "/api/v1/auth/**",
+            "/oauth2/**",
             "/api/v1/products/",
             "/api/v1/products/search",
 

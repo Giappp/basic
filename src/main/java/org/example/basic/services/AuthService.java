@@ -76,7 +76,7 @@ public class AuthService {
     private TokenResponse buildToken(User user, DeviceInfo deviceInfo) {
         return TokenResponse.builder()
                 .accessToken(jwtProvider.generateAccessToken(user))
-                .refreshToken(refreshTokenService.createRefreshToken(user.getId(), deviceInfo))
+                .refreshToken(refreshTokenService.createRefreshToken(user, deviceInfo))
                 .build();
     }
 
