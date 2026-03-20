@@ -4,7 +4,6 @@ import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 import jakarta.validation.ReportAsSingleViolation;
 import jakarta.validation.constraints.Pattern;
-import org.example.basic.errors.Messages;
 
 import java.lang.annotation.*;
 
@@ -16,7 +15,7 @@ import java.lang.annotation.*;
 @ReportAsSingleViolation
 public @interface Password {
 
-    String message() default Messages.Validation.PASSWORD;
+    String message() default "Invalid Password";
 
     Class<?>[] groups() default {};
 

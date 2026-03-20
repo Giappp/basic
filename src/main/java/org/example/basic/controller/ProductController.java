@@ -2,10 +2,10 @@ package org.example.basic.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.basic.dto.ApiResponse;
+import org.example.basic.dto.PageResponse;
 import org.example.basic.dto.ProductCriteria;
 import org.example.basic.dto.ProductDTO;
 import org.example.basic.services.ProductService;
@@ -26,72 +26,52 @@ public class ProductController {
             summary = "Get List of Products include pagination and sorting",
             description = "Return a list of product"
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Returns products in page"),
-            @ApiResponse(responseCode = "500", description = "Server Error")
-    })
     @GetMapping("/")
-    public ResponseEntity<?> getAll(@Parameter(description = "A Pageable Object")
-                                    @ParameterObject @PageableDefault() Pageable pageable) {
+    public ResponseEntity<ApiResponse<PageResponse<ProductDTO>>> getAll(@Parameter(description = "A Pageable Object")
+                                                                        @ParameterObject @PageableDefault() Pageable pageable) {
         var productDtoList = productService.getAll(pageable);
-        return ResponseEntity.ok(productDtoList);
+        return ResponseEntity.ok(ApiResponse.success(productDtoList));
     }
 
     @Operation(
             summary = "Create Product"
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Create product success"),
-            @ApiResponse(responseCode = "405", description = "Required Permission")
-    })
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/")
-    public ResponseEntity<?> createProduct(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Product Information to create", required = true)
-                                           @RequestBody @Valid ProductDTO dto) {
-        var result = productService.create(dto);
-        return ResponseEntity.ok(result);
+    public ResponseEntity<ApiResponse<ProductDTO>> createProduct(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Product Information to create", required = true)
+                                                                 @RequestBody @Valid ProductDTO dto) {
+        var productDTO = productService.create(dto);
+        return ResponseEntity.ok(ApiResponse.success(productDTO));
     }
 
     @Operation(
             summary = "Get Product By Id",
             description = "Returns detailed information of a product"
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Product found"),
-            @ApiResponse(responseCode = "404", description = "Product not found")
-    })
     @GetMapping("/{productId}")
-    public ResponseEntity<?> getProductById(@PathVariable Integer productId) {
+    public ResponseEntity<ApiResponse<ProductDTO>> getProductById(@PathVariable Integer productId) {
         var product = productService.getById(productId);
-        return ResponseEntity.ok(product);
+        return ResponseEntity.ok(ApiResponse.success(product));
     }
 
     @Operation(
             summary = "Update entire product (Admin Only)"
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Product Update Success"),
-            @ApiResponse(responseCode = "405", description = "Required Permission")
-    })
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{productId}")
-    public ResponseEntity<?> updateProduct(@PathVariable Integer productId, @RequestBody @Valid ProductDTO dto) {
+    public ResponseEntity<ApiResponse<ProductDTO>> updateProduct(@PathVariable Integer productId, @RequestBody @Valid ProductDTO dto) {
         var product = productService.update(productId, dto);
-        return ResponseEntity.ok(product);
+        return ResponseEntity.ok(ApiResponse.success(product));
     }
 
     @Operation(
             summary = "Delete product (Admin Only)"
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Product Deletion Success"),
-            @ApiResponse(responseCode = "405", description = "Required Permission")
-    })
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{productId}")
-    public ResponseEntity<?> deleteProduct(@PathVariable Integer productId) {
+    public ResponseEntity<ApiResponse<ProductDTO>> deleteProduct(@PathVariable Integer productId) {
         var result = productService.delete(productId);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(ApiResponse.success(result));
     }
 
     @Operation(
@@ -104,14 +84,9 @@ public class ProductController {
                     - Price range (min,max)
                     """
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Returns result page"),
-            @ApiResponse(responseCode = "400", description = "Validation error"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized")
-    })
     @GetMapping("/search")
-    public ResponseEntity<?> searchProducts(ProductCriteria criteria,
-                                            @ParameterObject @PageableDefault() Pageable pageable) {
-        return ResponseEntity.ok(productService.search(criteria, pageable));
+    public ResponseEntity<ApiResponse<PageResponse<ProductDTO>>> searchProducts(ProductCriteria criteria,
+                                                                                @ParameterObject @PageableDefault() Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(productService.search(criteria, pageable)));
     }
 }

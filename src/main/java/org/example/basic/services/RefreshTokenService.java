@@ -10,11 +10,13 @@ import org.example.basic.repositories.RefreshTokenRepository;
 import org.example.basic.repositories.UserRepository;
 import org.example.basic.security.SecurityUser;
 import org.jspecify.annotations.NonNull;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -24,7 +26,8 @@ public class RefreshTokenService {
 
     private final UserRepository userRepository;
 
-    private final long refreshTokenExpirationSecond = 7 * 24 * 60 * 60;
+    @Value(value = "${security.refreshTokenExpiration}")
+    private long refreshTokenExpirationSecond;
 
     public RefreshTokenService(RefreshTokenRepository refreshTokenRepository, UserRepository userRepository) {
         this.refreshTokenRepository = refreshTokenRepository;
@@ -34,7 +37,7 @@ public class RefreshTokenService {
     public String createRefreshToken(Long userId, DeviceInfo deviceInfo) {
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setUser(userRepository.findById(userId).get());
-        refreshToken.setExpiryDate(LocalDateTime.now().plusSeconds(refreshTokenExpirationSecond));
+        refreshToken.setExpiryDate(Instant.now().plusSeconds(refreshTokenExpirationSecond));
         refreshToken.setToken(UUID.randomUUID());
         refreshToken.setIpv4Address(deviceInfo.ipv4());
         refreshToken.setDeviceInfo(deviceInfo.device());
@@ -65,8 +68,15 @@ public class RefreshTokenService {
     }
 
     private void checkUser(User user) {
-        SecurityUser userDetails = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long userId = userDetails.user().getId();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+        SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
+        if (securityUser == null) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+        Long userId = securityUser.user().getId();
         if (!user.getId().equals(userId)) {
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
@@ -86,7 +96,13 @@ public class RefreshTokenService {
 
 
     @Transactional
-    public int deleteByUserId(Long userId) {
-        return refreshTokenRepository.deleteByUser(userRepository.findById(userId).get());
+    public void deleteByUserId(Long userId) {
+        User user = getUserOrThrow(userId);
+        userRepository.delete(user);
+    }
+
+    public User getUserOrThrow(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
     }
 }

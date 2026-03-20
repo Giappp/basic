@@ -2,7 +2,6 @@ package org.example.basic.config;
 
 import lombok.AllArgsConstructor;
 import org.example.basic.security.JwtFilter;
-import org.example.basic.security.SecurityConstants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -28,7 +27,7 @@ public class SecurityConfig {
     private final JwtFilter jwtFilter;
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain filterChain(HttpSecurity http) {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

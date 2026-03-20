@@ -1,6 +1,7 @@
 package org.example.basic.errors;
 
 public enum ErrorCode {
+    INVALID_BODY("INVALID BODY", "1"),
     PRODUCT_NOT_EXISTS("Product deleted or not exists", "1000"),
     INVALID_CATEGORY("Category is invalid", "1001"),
     CATEGORY_ALREADY_EXIST("Category already exists", "1002"),
@@ -10,7 +11,8 @@ public enum ErrorCode {
     USERNAME_TAKEN("Username already taken", "2002"),
     PASSWORD_MISMATCH("Password and confirm password does not match", "2003"),
     TOKEN_EXPIRED("Token expired", "2004"),
-    INVALID_TOKEN("Invalid Token or Already logout", "2005");
+    INVALID_TOKEN("Invalid Token or Already logout", "2005"),
+    USER_NOT_FOUND("User not found", "2006");
     public final String message;
     public final String code;
 

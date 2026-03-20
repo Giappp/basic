@@ -4,7 +4,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.security.SignatureException;
 import org.example.basic.dto.ApiResponse;
-import org.example.basic.errors.Messages;
+import org.example.basic.errors.ErrorCode;
 import org.example.basic.exception.AppException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,76 +13,44 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(AppException.class)
-    public ResponseEntity<?> handleAppException(AppException appException) {
-        return ResponseEntity.badRequest().body(ApiResponse.builder()
-                .messages(appException.getMessage())
-                .code(appException.getCode())
-                .success(false)
-                .build());
+    public ResponseEntity<ApiResponse<String>> handleAppException(AppException appException) {
+        return ResponseEntity.badRequest().body(ApiResponse.errorException(appException));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleMethodArgumentNotValid(MethodArgumentNotValidException exception) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleMethodArgumentNotValid(MethodArgumentNotValidException exception) {
         Map<String, String> errors = new LinkedHashMap<>();
         for (var e : exception.getFieldErrors()) {
             errors.put(e.getField(), e.getDefaultMessage());
         }
         return ResponseEntity.badRequest()
-                .body(ApiResponse.builder()
-                        .messages(errors)
-                        .success(false)
-                        .build());
+                .body(ApiResponse.validationErrors(errors));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<?> handleHttpMessageNotReadable(HttpMessageNotReadableException exception) {
+    public ResponseEntity<ApiResponse<String>> handleHttpMessageNotReadable(HttpMessageNotReadableException exception) {
         return ResponseEntity.badRequest()
-                .body(ApiResponse.builder()
-                        .messages(Messages.INVALID_BODY)
-                        .success(false)
-                        .build());
+                .body(ApiResponse.errorMessage(ErrorCode.INVALID_BODY));
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
-    public ResponseEntity<?> handleExpiredJwtException(ExpiredJwtException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", "Unauthorized");
-        error.put("message", "JWT token has expired. Please refresh.");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                ApiResponse.<Map<String, String>>builder()
-                        .messages(error)
-                        .success(false)
-                        .build());
+    public ResponseEntity<ApiResponse<String>> handleExpiredJwtException(ExpiredJwtException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.errorMessage(ErrorCode.INVALID_TOKEN));
     }
 
     @ExceptionHandler(SignatureException.class)
-    public ResponseEntity<?> handleSignatureException(SignatureException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", "Unauthorized");
-        error.put("message", "Invalid JWT signature.");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                ApiResponse.<Map<String, String>>builder()
-                        .messages(error)
-                        .success(false)
-                        .build());
+    public ResponseEntity<ApiResponse<String>> handleSignatureException(SignatureException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.errorMessage(ErrorCode.INVALID_TOKEN));
     }
 
     @ExceptionHandler(JwtException.class)
-    public ResponseEntity<?> handleOtherJwtExceptions(JwtException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", "Unauthorized");
-        error.put("message", "Invalid JWT token.");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                ApiResponse.<Map<String, String>>builder()
-                        .messages(error)
-                        .success(false)
-                        .build());
+    public ResponseEntity<ApiResponse<String>> handleOtherJwtExceptions(JwtException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.errorMessage(ErrorCode.INVALID_TOKEN));
     }
 }

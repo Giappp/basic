@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -19,11 +19,11 @@ public class RefreshToken {
     private User user;
     @Column(nullable = false, unique = true)
     private UUID token;
-    private LocalDateTime expiryDate;
+    private Instant expiryDate;
     private String ipv4Address;
     private String deviceInfo;
 
     public boolean isExpire() {
-        return expiryDate.isBefore(LocalDateTime.now());
+        return expiryDate.isBefore(Instant.now());
     }
 }
