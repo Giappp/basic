@@ -1,6 +1,7 @@
 package org.example.basic.config;
 
 import lombok.AllArgsConstructor;
+import org.example.basic.security.HttpCookieOAuth2AuthorizationRequestRepository;
 import org.example.basic.security.JwtFilter;
 import org.example.basic.security.Oauth2SuccessHandler;
 import org.example.basic.security.SecurityConstants;
@@ -28,6 +29,7 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final JwtFilter jwtFilter;
     private final Oauth2SuccessHandler oauth2SuccessHandler;
+    private HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -38,8 +40,13 @@ public class SecurityConfig {
                         auth.requestMatchers(SecurityConstants.BYPASS_ENDPOINTS).permitAll()
                                 .anyRequest()
                                 .authenticated())
-                .oauth2Login(oauth ->
-                        oauth.successHandler(oauth2SuccessHandler))
+                .oauth2Login(oauth -> {
+                    oauth.authorizationEndpoint(authEndpoint -> {
+                        authEndpoint.authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository);
+                    });
+                    oauth.successHandler(oauth2SuccessHandler);
+                })
+
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authenticationProvider(authenticationProvider());
 
