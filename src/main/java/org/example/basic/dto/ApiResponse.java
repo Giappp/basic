@@ -3,7 +3,6 @@ package org.example.basic.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
-import org.example.basic.errors.ErrorCode;
 import org.example.basic.exception.AppException;
 
 @Data
@@ -30,10 +29,10 @@ public class ApiResponse<T> {
                 .build();
     }
 
-    public static ApiResponse<String> errorMessage(ErrorCode error) {
+    public static ApiResponse<String> errorMessage(String message, String code) {
         return ApiResponse.<String>builder()
-                .messages(error.message)
-                .code(error.code)
+                .messages(message)
+                .code(code)
                 .success(false)
                 .build();
     }

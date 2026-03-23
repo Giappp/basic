@@ -86,7 +86,7 @@ public class AuthService {
 
     private void validate(SignUpRequest request) {
         if (userRepository.findByEmail(request.email()).isPresent()) {
-            throw new AppException(ErrorCode.EMAIL_ALREADY_INUSE);
+            throw new AppException(ErrorCode.EMAIL_TAKEN);
         }
         if (userRepository.findByUserName(request.userName()).isPresent()) {
             throw new AppException(ErrorCode.USERNAME_TAKEN);

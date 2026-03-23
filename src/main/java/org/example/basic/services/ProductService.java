@@ -97,6 +97,6 @@ public class ProductService {
 
     private Category getCategoryOrThrow(Integer id) {
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.INVALID_CATEGORY));
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
     }
 }

@@ -1,23 +1,24 @@
 package org.example.basic.errors;
 
 public enum ErrorCode {
-    INVALID_BODY("INVALID BODY", "1"),
-    PRODUCT_NOT_EXISTS("Product deleted or not exists", "1000"),
-    INVALID_CATEGORY("Category is invalid", "1001"),
-    CATEGORY_ALREADY_EXIST("Category already exists", "1002"),
-    CATEGORY_NOT_FOUND("Category deleted or not exists", "1003"),
-    INVALID_CREDENTIALS("Wrong username or password", "2000"),
-    EMAIL_ALREADY_INUSE("Email already used", "2001"),
-    USERNAME_TAKEN("Username already taken", "2002"),
-    PASSWORD_MISMATCH("Password and confirm password does not match", "2003"),
-    TOKEN_EXPIRED("Token expired", "2004"),
-    INVALID_TOKEN("Invalid Token or Already logout", "2005"),
-    USER_NOT_FOUND("User not found", "2006");
-    public final String message;
+    INVALID_BODY("payload.invalid", "1"),
+    PRODUCT_NOT_EXISTS("product.not-found", "1000"),
+    CATEGORY_NOT_FOUND("category.not-found", "1001"),
+    CATEGORY_ALREADY_EXIST("category.duplicate", "1002"),
+
+    INVALID_CREDENTIALS("credentials.invalid", "2000"),
+    EMAIL_TAKEN("email.taken", "2001"),
+    USERNAME_TAKEN("username.taken", "2002"),
+    PASSWORD_MISMATCH("password.mismatch", "2003"),
+    TOKEN_EXPIRED("token.expired", "2004"),
+    INVALID_TOKEN("token.invalidate", "2005"),
+    USER_NOT_FOUND("user.not-found", "2006");
+
+    public final String key;
     public final String code;
 
-    ErrorCode(String message, String code) {
-        this.message = message;
+    ErrorCode(String key, String code) {
+        this.key = key;
         this.code = code;
     }
 }
