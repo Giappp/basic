@@ -15,7 +15,7 @@ import java.lang.annotation.*;
 @ReportAsSingleViolation
 public @interface Password {
 
-    String message() default "validate.password";
+    String message() default "{validate.password}";
 
     Class<?>[] groups() default {};
 

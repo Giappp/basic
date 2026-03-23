@@ -5,11 +5,10 @@ import org.example.basic.errors.ErrorCode;
 
 @Getter
 public class AppException extends RuntimeException {
-    private final String message;
-    private final String code;
+    private final ErrorCode errorCode;
 
     public AppException(ErrorCode errorCode) {
-        message = errorCode.key;
-        code = errorCode.code;
+        super(errorCode.key);
+        this.errorCode = errorCode;
     }
 }
