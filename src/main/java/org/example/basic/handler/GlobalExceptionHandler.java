@@ -18,7 +18,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -35,9 +35,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<String>> handleAppException(AppException ex) {
         String message = resolveMessage(ex.getErrorCode());
 
-        return ResponseEntity.badRequest().body(
-                ApiResponse.error(message, ex.getErrorCode().code)
-        );
+        return ResponseEntity
+                .status(ex.getErrorCode().status)
+                .body(ApiResponse.error(message, ex.getErrorCode().code));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -56,11 +56,11 @@ public class GlobalExceptionHandler {
     }
 
     private @NonNull Map<String, String> getFieldErrors(MethodArgumentNotValidException ex, Locale locale) {
-        Map<String, String> errors = new HashMap<>();
+        Map<String, String> errors = new LinkedHashMap<>();
 
         for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
             String message = resolveFieldError(fieldError, locale);
-            errors.put(fieldError.getField(), message);
+            errors.putIfAbsent(fieldError.getField(), message);
         }
         return errors;
     }
@@ -112,5 +112,15 @@ public class GlobalExceptionHandler {
                 null,
                 LocaleContextHolder.getLocale()
         );
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<String>> handleUnknown(Exception ex) {
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(
+                        "Internal server error",
+                        "9999"
+                ));
     }
 }
