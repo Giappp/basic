@@ -33,6 +33,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AppException.class)
     public ResponseEntity<ApiResponse<String>> handleAppException(AppException ex) {
+        log.warn("Business Exception: ", ex);
         String message = resolveMessage(ex.getErrorCode());
 
         return ResponseEntity
@@ -43,7 +44,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleValidation(MethodArgumentNotValidException ex) {
         Locale locale = LocaleContextHolder.getLocale();
-
+        log.warn("Validation Exception: ", ex);
         Map<String, String> errors = getFieldErrors(ex, locale);
 
         return ResponseEntity.badRequest().body(
