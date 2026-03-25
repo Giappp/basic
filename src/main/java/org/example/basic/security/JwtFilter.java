@@ -5,7 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.basic.services.UserService;
+import org.example.basic.services.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,11 +20,11 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     private final HandlerExceptionResolver exceptionResolver;
 
-    public JwtFilter(JwtProvider jwtProvider, UserService userService, @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
+    public JwtFilter(JwtProvider jwtProvider, UserServiceImpl userService, @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
         this.jwtProvider = jwtProvider;
         this.userService = userService;
         this.exceptionResolver = exceptionResolver;

@@ -1,4 +1,4 @@
-package org.example.basic.services;
+package org.example.basic.services.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.example.basic.repositories.UserRepository;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserDetailsService {
+public class UserServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override

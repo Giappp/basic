@@ -23,20 +23,20 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<ApiResponse<TokenResponse>> signIn(@RequestBody @Valid SignInRequest payload, HttpServletRequest request) {
-        var token = authService.processSignIn(payload, request);
+        var token = authService.signIn(payload, request);
         return ResponseEntity.ok(ApiResponse.success(token));
     }
 
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<String>> signUp(@RequestBody @Valid SignUpRequest payload, HttpServletRequest request) {
-        authService.processSignUp(payload);
+        authService.signUp(payload);
         return ResponseEntity.created(URI.create(request.getRequestURI()))
                 .body(ApiResponse.success(""));
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<TokenResponse>> refresh(@RequestBody @Valid RefreshTokenRequest payload, HttpServletRequest request) {
-        var result = authService.processRefresh(payload, request);
+        var result = authService.refresh(payload, request);
         return ResponseEntity.ok(ApiResponse.success(result));
     }
 

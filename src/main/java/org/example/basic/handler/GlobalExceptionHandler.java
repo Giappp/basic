@@ -74,7 +74,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<ApiResponse<String>> handleJwtException(JwtException ex) {
-
+        log.warn("JWT Exception: ", ex);
         ErrorCode errorCode = mapJwtException(ex);
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -116,7 +116,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<String>> handleUnknown(Exception ex) {
-
+        log.error("Internal Server error: ", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error(
                         "Internal server error",
