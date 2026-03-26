@@ -15,9 +15,9 @@ import java.util.Date;
 
 @Component
 public class JwtProvider {
-    @Value(value = "${security.jwt.secret}")
+    @Value(value = "${app.security.jwt.secret}")
     private String jwtSecret;
-    @Value(value = "${security.jwt.accessTokenExpirationMs}")
+    @Value(value = "${app.security.jwt.access-token-expiration}")
     private long accessTokenExpirationMs;
     private SecretKey secretKey;
 
