@@ -6,11 +6,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface RefreshTokenService {
-    String createRefreshToken(Long userId, DeviceInfo deviceInfo);
+    String createRefreshToken(User user, DeviceInfo deviceInfo);
 
     User verify(String token);
 
-    String rotate(String token, DeviceInfo deviceInfo);
-
     void invalidate(String token);
+
+    String rotate(String oldToken, User user, DeviceInfo deviceInfo);
 }
