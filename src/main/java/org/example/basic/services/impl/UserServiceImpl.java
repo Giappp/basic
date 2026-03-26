@@ -2,12 +2,15 @@ package org.example.basic.services.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.example.basic.dto.SignUpRequest;
+import org.example.basic.dto.response.UserProfileDto;
 import org.example.basic.entities.Role;
 import org.example.basic.entities.User;
 import org.example.basic.errors.ErrorCode;
 import org.example.basic.exception.AppException;
 import org.example.basic.repositories.UserRepository;
+import org.example.basic.security.SecurityUser;
 import org.example.basic.services.UserService;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +24,21 @@ public class UserServiceImpl implements UserService {
     public void createUser(SignUpRequest request) {
         validate(request);
         userRepository.save(buildUserEntity(request));
+    }
+
+    @Override
+    public UserProfileDto getUserProfile(UserDetails userDetails) {
+        var securityUser = (SecurityUser) userDetails;
+        return toUserProfile(securityUser.user());
+    }
+
+    private UserProfileDto toUserProfile(User user) {
+        return UserProfileDto
+                .builder()
+                .username(user.getUserName())
+                .email(user.getEmail())
+                .avatarUrl("sample")
+                .build();
     }
 
     private void validate(SignUpRequest request) {
