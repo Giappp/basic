@@ -1,0 +1,65 @@
+spring:
+  application:
+    name: basic
+  threads:
+    virtual:
+      enabled: true
+  security:
+    user:
+      roles: USER,ADMIN
+  datasource:
+    url: ${DATA_SOURCE_URL}
+    username: ${DATA_SOURCE_USERNAME}
+    password: ${DATA_SOURCE_PASSWORD}
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+      fail-on-unknown-inject-value: true
+  messages:
+    always-use-message-format: false
+    basename: messages
+    cache-duration:
+    encoding: UTF-8
+    fallback-to-system-locale: true
+    use-code-as-default-message: false
+
+app:
+  front-end:
+    domain: ${FRONTEND_DOMAIN}
+  security:
+    jwt:
+      secret: ${JWT_SECRET}
+      user:
+        access-token-expiration: ${USER_ACCESS_TOKEN_EXPIRATION}
+        refresh-token-expiration: ${USER_REFRESH_TOKEN_EXPIRATION}
+      admin:
+        access-token-expiration: ${ADMIN_ACCESS_TOKEN_EXPIRATION}
+        refresh-token-expiration: ${ADMIN_REFRESH_TOKEN_EXPIRATION}
+    cookie:
+      secure: ${COOKIE_SECURE}
+      user:
+        access-token:
+          name: access_token
+          path: /api
+        refresh-token:
+          name: refresh_token
+          path: /api/v1/auth/refresh
+      admin:
+        access-token:
+          name: admin_access
+          path: /admin
+        refresh-token:
+          name: admin_refresh
+          path: /admin/v1/auth/refresh
+
+logging:
+  level:
+    root: WARN
+    org.springframework.web: DEBUG
+    org.springframework.web.filter.CommonsRequestLoggingFilter: TRACE
+  file:
+    name: basic.log

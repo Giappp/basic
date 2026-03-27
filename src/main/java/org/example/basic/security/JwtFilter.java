@@ -19,13 +19,13 @@ import java.io.IOException;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
-    private final JwtProvider jwtProvider;
+    private final JwtUtil jwtProvider;
 
     private final UserDetailsService userService;
 
     private final HandlerExceptionResolver exceptionResolver;
 
-    public JwtFilter(JwtProvider jwtProvider, UserDetailsServiceImpl userService, @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
+    public JwtFilter(JwtUtil jwtProvider, UserDetailsServiceImpl userService, @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
         this.jwtProvider = jwtProvider;
         this.userService = userService;
         this.exceptionResolver = exceptionResolver;

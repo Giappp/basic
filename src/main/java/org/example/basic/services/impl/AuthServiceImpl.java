@@ -6,11 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.basic.dto.DeviceInfo;
 import org.example.basic.dto.SignInRequest;
 import org.example.basic.dto.SignUpRequest;
-import org.example.basic.dto.TokenResponse;
+import org.example.basic.dto.response.TokenResponse;
 import org.example.basic.entities.User;
 import org.example.basic.errors.ErrorCode;
 import org.example.basic.exception.AppException;
-import org.example.basic.security.JwtProvider;
+import org.example.basic.security.JwtUtil;
 import org.example.basic.security.SecurityUser;
 import org.example.basic.services.AuthService;
 import org.example.basic.services.RefreshTokenService;
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService {
     private final UserDetailsService userDetailsService;
     private final UserService userService;
-    private final JwtProvider jwtProvider;
+    private final JwtUtil jwtProvider;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
 

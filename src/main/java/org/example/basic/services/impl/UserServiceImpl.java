@@ -3,7 +3,6 @@ package org.example.basic.services.impl;
 import lombok.RequiredArgsConstructor;
 import org.example.basic.dto.SignUpRequest;
 import org.example.basic.dto.response.UserProfileDto;
-import org.example.basic.entities.Role;
 import org.example.basic.entities.User;
 import org.example.basic.errors.ErrorCode;
 import org.example.basic.exception.AppException;
@@ -58,7 +57,6 @@ public class UserServiceImpl implements UserService {
         user.setUserName(request.userName());
         user.setEmail(request.email());
         user.setPasswordHashed(passwordEncoder.encode(request.password()));
-        user.setRole(Role.USER);
         return user;
     }
 }

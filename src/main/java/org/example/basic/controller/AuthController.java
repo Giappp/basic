@@ -8,7 +8,7 @@ import org.example.basic.dto.ApiResponse;
 import org.example.basic.dto.SignInRequest;
 import org.example.basic.dto.SignUpRequest;
 import org.example.basic.services.AuthService;
-import org.example.basic.services.AuthTokenService;
+import org.example.basic.services.CookieService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,14 +21,14 @@ import java.net.URI;
 @Slf4j
 public class AuthController {
     private final AuthService authService;
-    private final AuthTokenService authTokenService;
+    private final CookieService cookieService;
 
     @PostMapping("/signin")
     public ResponseEntity<ApiResponse<String>> signIn(@RequestBody @Valid SignInRequest payload, HttpServletRequest request) {
         var token = authService.signIn(payload, request);
 
-        var accessTokenCookie = authTokenService.createAccessTokenCookie(token.accessToken());
-        var refreshTokenCookie = authTokenService.createRefreshTokenCookie(token.refreshToken());
+        var accessTokenCookie = cookieService.createUserAccessTokenCookie(token.accessToken());
+        var refreshTokenCookie = cookieService.createUserRefreshTokenCookie(token.refreshToken());
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
@@ -45,8 +45,8 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<String>> refresh(@CookieValue(name = "refresh_token", required = false) String refreshToken, HttpServletRequest request) {
         var token = authService.refresh(refreshToken, request);
-        var accessTokenCookie = authTokenService.createAccessTokenCookie(token.accessToken());
-        var refreshTokenCookie = authTokenService.createRefreshTokenCookie(token.refreshToken());
+        var accessTokenCookie = cookieService.createUserAccessTokenCookie(token.accessToken());
+        var refreshTokenCookie = cookieService.createUserRefreshTokenCookie(token.refreshToken());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
@@ -57,6 +57,11 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<String>> logout(@CookieValue(name = "refresh_token", required = false) String refreshToken) {
         authService.logout(refreshToken);
-        return ResponseEntity.ok(ApiResponse.success("Logout success"));
+        var cleanAccessTokenCookie = cookieService.cleanUserAccessTokenCookie();
+        var cleanRefreshTokenCookie = cookieService.cleanUserRefreshTokenCookie();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cleanAccessTokenCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, cleanRefreshTokenCookie.toString())
+                .body(ApiResponse.success("Logout success"));
     }
 }

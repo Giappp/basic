@@ -7,12 +7,24 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public record SecurityUser(User user) implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(user.getRole().toString()));
+        Set<GrantedAuthority> authorities = new HashSet<>();
+
+        user.getRoles().forEach(role ->
+                authorities.add(new SimpleGrantedAuthority(role.getName().name()))
+        );
+        user.getRoles().forEach(role ->
+                role.getPermissions().forEach(perm ->
+                        authorities.add(new SimpleGrantedAuthority(perm.getName()))
+                )
+        );
+
+        return authorities;
     }
 
     @Override
@@ -25,4 +37,13 @@ public record SecurityUser(User user) implements UserDetails {
         return user.getEmail();
     }
 
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
+    }
 }
