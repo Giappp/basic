@@ -35,27 +35,6 @@ public class SecurityConfig {
     private final AppProperties appProperties;
 
     @Bean
-    @Order(1)
-    SecurityFilterChain adminFilterChain(HttpSecurity http) {
-        CsrfTokenRequestAttributeHandler csrfTokenRequestAttributeHandler = new CsrfTokenRequestAttributeHandler();
-        csrfTokenRequestAttributeHandler.setCsrfRequestAttributeName("_csrf");
-
-        http.securityMatcher("/admin/**")
-                .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .csrfTokenRequestHandler(csrfTokenRequestAttributeHandler)
-                        .ignoringRequestMatchers("/admin/auth/**"))
-                .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/admin/auth/**").permitAll()
-                                .anyRequest().hasRole("ADMIN"))
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .authenticationProvider(authenticationProvider());
-
-        return http.build();
-    }
-
-    @Bean
     @Order(2)
     SecurityFilterChain userFilterChain(HttpSecurity http) {
         CsrfTokenRequestAttributeHandler csrfTokenRequestAttributeHandler = new CsrfTokenRequestAttributeHandler();

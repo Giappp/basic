@@ -1,4 +1,4 @@
-package org.example.basic.dto;
+package org.example.basic.dto.request;
 
 import jakarta.validation.constraints.Email;
 import lombok.Builder;
